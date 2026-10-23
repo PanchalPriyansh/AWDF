@@ -1,0 +1,9 @@
+# Exclude dependencies and build outputs from build context (Supplementary 1)
+node_modules
+dist
+npm-debug.log
+.env
+.git
+.gitignore
+Dockerfile
+.dockerignore
