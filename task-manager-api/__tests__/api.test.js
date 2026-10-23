@@ -89,4 +89,34 @@ describe('Task Management API Test Suite (Practical 12 - CI/CD Automated Tests)'
     expect(res.statusCode).toBe(400);
     expect(res.body.error).toBe('Validation Error');
   });
+
+  // Test 8: AI Task Description Generation with Fallback (Practical 13)
+  test('POST /api/ai/generate-description should return 200 and generated suggestion', async () => {
+    const res = await request(app)
+      .post('/api/ai/generate-description')
+      .send({ title: 'Complete Lab 13 AI Integration' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('description');
+    expect(res.body).toHaveProperty('priority');
+    expect(res.body).toHaveProperty('disclaimer');
+  });
+
+  // Test 9: AI Task Description rejects empty title
+  test('POST /api/ai/generate-description with empty title returns 400', async () => {
+    const res = await request(app)
+      .post('/api/ai/generate-description')
+      .send({ title: '' });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toBe('Validation Error');
+  });
+
+  // Test 10: AI Rate Limiting (Supplementary Problem 2)
+  test('POST /api/ai/generate-description enforces rate limiting on second immediate call', async () => {
+    const res = await request(app)
+      .post('/api/ai/generate-description')
+      .send({ title: 'Another Rapid Task' });
+    expect(res.statusCode).toBe(429);
+    expect(res.body.error).toBe('Too Many Requests');
+  });
 });

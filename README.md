@@ -37,7 +37,7 @@ This repository contains the coursework, code implementations, Docker orchestrat
 | 10 | Asynchronous Background Processing with Node.js `EventEmitter` | Completed |
 | 11 | Full-Stack Multi-Stage Docker Containerization & Compose | Completed |
 | 12 | CI/CD Pipeline Automation with GitHub Actions & Jest | Completed |
-| 13 | Production Cloud Deployment & Monitoring | Pending |
+| 13 | External AI Service Integration & Responsible AI Usage | Completed |
 
 ---
 

@@ -234,3 +234,25 @@ export async function deleteTask(id) {
   }
   return data;
 }
+
+/**
+ * Generate AI Task Description & Priority Suggestion (Practical 13)
+ * Stored server-side only; handles loading, rate-limiting (429), and fallbacks
+ */
+export async function generateAiDescription(title) {
+  const res = await fetch(`${BASE_URL}/api/ai/generate-description`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ title }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    if (res.status === 429) {
+      throw new Error(data.message || 'Rate limit reached: Max 1 AI request per minute.');
+    }
+    throw new Error(data.message || data.error || 'Failed to generate AI description');
+  }
+
+  return data;
+}

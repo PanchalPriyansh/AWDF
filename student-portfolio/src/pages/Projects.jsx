@@ -10,6 +10,7 @@ import {
   getEventsLog,
   getStoredToken,
   getStoredUser,
+  generateAiDescription,
 } from '../services/api';
 import Spinner from '../components/Spinner';
 import ErrorMessage from '../components/ErrorMessage';
@@ -46,6 +47,11 @@ function Projects() {
   const [newDesc, setNewDesc] = useState('');
   const [newPriority, setNewPriority] = useState('medium');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Practical 13: External AI Assistance States (Loading, Disclaimer, Fallback)
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiDisclaimer, setAiDisclaimer] = useState(null);
+  const [aiFallback, setAiFallback] = useState(false);
 
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState('');
@@ -174,6 +180,37 @@ function Projects() {
     }
   };
 
+  // Practical 13: External AI Assistance Generation (Steps 4 & 5, Supplementary 1, 2, 3)
+  const handleAiGenerate = async () => {
+    if (!newTitle.trim()) {
+      showToast('Please type a task title first so the AI can generate a suggestion.', 'error');
+      return;
+    }
+
+    setIsAiLoading(true);
+    try {
+      const res = await generateAiDescription(newTitle.trim());
+      if (res && res.description) {
+        setNewDesc(res.description);
+        if (res.priority && ['low', 'medium', 'high'].includes(res.priority.toLowerCase())) {
+          setNewPriority(res.priority.toLowerCase());
+        }
+        setAiDisclaimer(res.disclaimer || 'AI-generated suggestion. Please review and modify before saving.');
+        setAiFallback(Boolean(res.fallback));
+        showToast(
+          res.fallback
+            ? 'AI description generated (Fallback mode).'
+            : '✨ AI description & priority generated successfully!',
+          'success'
+        );
+      }
+    } catch (err) {
+      showToast(err.message || 'AI request failed.', 'error');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
   // Task Creation with server-side validation and Optimistic UI update
   const handleCreateTask = async (e) => {
     e.preventDefault();
@@ -203,6 +240,7 @@ function Projects() {
     setNewTitle('');
     setNewDesc('');
     setNewPriority('medium');
+    setAiDisclaimer(null);
     setIsSubmitting(true);
 
     try {
@@ -531,10 +569,10 @@ function Projects() {
       {/* Main Page Header */}
       <header className="projects-header" style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
-          Full-Stack Task Manager (Practical 7)
+          Full-Stack Task Manager (Practicals 7–13: AI-Integrated)
         </h1>
         <p style={{ color: 'var(--text-muted, #64748b)' }}>
-          Node.js, Express, MongoDB, Mongoose, and JWT-Based Authentication Pipeline
+          Node.js, Express, MongoDB, JWT Auth, Caching, Event Processing, & Responsible AI Integration
         </p>
       </header>
 
@@ -682,14 +720,14 @@ function Projects() {
               Add New Task (Protected & Validated)
             </h2>
             <form onSubmit={handleCreateTask} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <input
                   type="text"
                   placeholder="Task title (required)..."
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   style={{
-                    width: '100%',
+                    flex: 1,
                     padding: '10px 14px',
                     borderRadius: '6px',
                     border: '1px solid #cbd5e1',
@@ -697,7 +735,72 @@ function Projects() {
                     boxSizing: 'border-box',
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={handleAiGenerate}
+                  disabled={isAiLoading || !newTitle.trim()}
+                  style={{
+                    padding: '10px 16px',
+                    backgroundColor: isAiLoading ? '#94a3b8' : '#7c3aed',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    cursor: isAiLoading || !newTitle.trim() ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  }}
+                  title="Auto-generate description & suggest priority using AI (Practical 13)"
+                >
+                  {isAiLoading ? '⏳ Generating...' : '✨ AI Suggest'}
+                </button>
               </div>
+
+              {/* Responsible AI Disclaimer & Fallback Banner (Practical 13 Supplementary 3) */}
+              {aiDisclaimer && (
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    backgroundColor: aiFallback ? '#fffbeb' : '#f0fdf4',
+                    border: `1px solid ${aiFallback ? '#fef3c7' : '#bbf7d0'}`,
+                    borderRadius: '6px',
+                    fontSize: '0.85rem',
+                    color: aiFallback ? '#92400e' : '#166534',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1rem' }}>{aiFallback ? '⚠️' : '🤖'}</span>
+                    <span>
+                      <strong>{aiFallback ? 'Fallback Notice: ' : 'AI Disclaimer: '}</strong>
+                      {aiDisclaimer}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAiDisclaimer(null)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      color: 'inherit',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                    }}
+                    title="Dismiss disclaimer"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                 <input
                   type="text"

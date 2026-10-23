@@ -521,6 +521,61 @@ app.delete('/tasks/:id', authMiddleware, async (req, res, next) => {
 });
 
 // ============================================================================
+// 5.8 AI-POWERED TASK ENHANCEMENT ROUTE (Practical 13)
+// ============================================================================
+const { generateTaskDescription } = require('./aiService');
+
+const handleAiGenerate = async (req, res, next) => {
+  try {
+    const { title } = req.body;
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation Error',
+        message: 'A non-empty task title is required to generate an AI suggestion.',
+      });
+    }
+
+    // Supplementary Problem 2: Rate limit tracking per client/IP (1 request / min)
+    const clientId = (req.user && req.user.id) || req.ip || 'anonymous-client';
+    const result = await generateTaskDescription(title.trim(), clientId);
+
+    if (result.error === 'RateLimitExceeded') {
+      return res.status(429).json({
+        success: false,
+        error: 'Too Many Requests',
+        message: result.message,
+        waitSeconds: result.waitSeconds,
+      });
+    }
+
+    // Step 3 & Step 5: Deliver formatted suggestion, priority, and fallback metadata
+    res.status(200).json({
+      success: true,
+      description: result.description,
+      priority: result.priority,
+      fallback: result.fallback,
+      provider: result.provider,
+      disclaimer: result.disclaimer,
+      data: result,
+    });
+  } catch (err) {
+    // Step 6: Graceful error handling - core app continues functioning
+    console.error('[AI Endpoint Error]', err.message);
+    res.status(200).json({
+      success: true,
+      description: `Review requirements and complete: ${req.body.title || 'Untitled'}`,
+      priority: 'medium',
+      fallback: true,
+      message: 'AI service encountered an internal error. Fallback applied.',
+    });
+  }
+};
+
+app.post('/api/ai/generate-description', handleAiGenerate);
+app.post('/ai/generate-description', handleAiGenerate);
+
+// ============================================================================
 // 6. 404 NOT FOUND HANDLER FOR UNDEFINED ROUTES
 // ============================================================================
 app.use((req, res) => {
