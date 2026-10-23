@@ -1,6 +1,6 @@
 # Advance Web Development Frameworks - Lab Practicals
 
-[![Task Management CI/CD Pipeline](https://github.com/PanchalPriyansh/Advance-Web-Development-Frameworks/actions/workflows/ci.yml/badge.svg)](https://github.com/PanchalPriyansh/Advance-Web-Development-Frameworks/actions/workflows/ci.yml)
+[![Task Management CI/CD Pipeline](https://github.com/PanchalPriyansh/AWDF/actions/workflows/ci.yml/badge.svg)](https://github.com/PanchalPriyansh/AWDF/actions/workflows/ci.yml)
 
 **Student Name:** Priyansh Pravinbhai Panchal  
 **Institution:** CHARUSAT University  

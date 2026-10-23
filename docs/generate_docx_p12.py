@@ -376,7 +376,7 @@ describe('Task Management API Test Suite (Practical 12 - CI/CD Automated Tests)'
             "Snippet 4: README Status Badge & Pull Request Trigger (README.md - Supplementary 2 & 3)",
             "Integrates real-time SVG status badge and pull request continuous integration gating:",
             """# Markdown Status Badge in README.md:
-[![Task Management CI/CD Pipeline](https://github.com/PanchalPriyansh/Advance-Web-Development-Frameworks/actions/workflows/ci.yml/badge.svg)](https://github.com/PanchalPriyansh/Advance-Web-Development-Frameworks/actions/workflows/ci.yml)
+[![Task Management CI/CD Pipeline](https://github.com/PanchalPriyansh/AWDF/actions/workflows/ci.yml/badge.svg)](https://github.com/PanchalPriyansh/AWDF/actions/workflows/ci.yml)
 
 # Restricting to Pull Requests only (Supplementary Problem 2):
 on:
